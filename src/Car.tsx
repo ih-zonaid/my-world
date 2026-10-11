@@ -1,17 +1,21 @@
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { CuboidCollider } from "@react-three/rapier";
-import { EcctrlVehicle, ShapeCastWheel } from "ecctrl/vehicle";
+import {
+  EcctrlVehicle,
+  ShapeCastWheel,
+  type EcctrlVehicleHandle,
+} from "ecctrl/vehicle";
 import { useJoystickStore, useButtonStore } from "ecctrl/input";
 import * as THREE from "three";
 
-const START = [0, 2, 10];
+const START: [number, number, number] = [0, 2, 10];
 // Mass matters: the default ecctrl suspension (springK=180) is tuned for a light body.
 // If you make the car heavier, raise springK/dampingC on <ShapeCastWheel> too.
 const CAR_MASS = 20;
 
 // Keyboard state (kept outside React so it never causes re-renders)
-const keys = {};
+const keys: Record<string, boolean> = {};
 if (typeof window !== "undefined") {
   window.addEventListener("keydown", (e) => (keys[e.code] = true));
   window.addEventListener("keyup", (e) => (keys[e.code] = false));
@@ -23,7 +27,13 @@ if (typeof window !== "undefined") {
 //   const { scene } = useGLTF("/models/car.glb");  // from @react-three/drei
 //   ...and render <primitive object={scene} /> instead of the box meshes.
 // ----------------------------------------------------------------------------
-function Wheel({ position, steer, drive }) {
+type WheelProps = {
+  position: [number, number, number];
+  steer?: boolean;
+  drive?: boolean;
+};
+
+function Wheel({ position, steer, drive }: WheelProps) {
   return (
     <ShapeCastWheel position={position} steerWheel={steer} driveWheel={drive} brakeWheel>
       <mesh castShadow rotation-z={Math.PI / 2}>
@@ -35,7 +45,7 @@ function Wheel({ position, steer, drive }) {
 }
 
 export default function Car() {
-  const vehicle = useRef(null);
+  const vehicle = useRef<EcctrlVehicleHandle>(null);
   const camPos = useRef(new THREE.Vector3(0, 6, 22));
   const camLook = useRef(new THREE.Vector3(...START));
   const tmp = useRef({
@@ -56,8 +66,7 @@ export default function Car() {
     const joy = useJoystickStore.getState().joysticks?.default ?? { x: 0, y: 0, active: false };
     const jx = joy.active ? joy.x : 0;
     const jy = joy.active ? joy.y : 0;
-    const braking =
-      !!keys.Space || !!useButtonStore.getState().buttons?.brake;
+    const braking = !!keys.Space || !!useButtonStore.getState().buttons?.brake;
 
     v.setMovement({
       forward: !!(keys.KeyW || keys.ArrowUp) || jy > 0.25,

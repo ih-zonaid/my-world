@@ -1,12 +1,12 @@
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Joystick, VirtualButton } from "ecctrl/input";
-import World from "./World.jsx";
-import Car from "./Car.jsx";
+import World from "./World";
+import Car from "./Car";
 
 export default function App() {
   // Phones/tablets get a lower pixel ratio to stay smooth.
-  const dpr = [1, 1.5];
+  const dpr: [number, number] = [1, 1.5];
   return (
     <>
       <Canvas

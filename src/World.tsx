@@ -20,10 +20,17 @@ function Ground() {
   );
 }
 
-function Ramp({ position, rotation = [0, 0, 0], size = [6, 0.4, 10] }) {
+type RampProps = {
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  size?: [number, number, number];
+};
+
+function Ramp({ position, rotation = [0, 0, 0], size = [6, 0.4, 10] }: RampProps) {
+  const [hx, hy, hz] = size;
   return (
     <RigidBody type="fixed" position={position} rotation={rotation} friction={1}>
-      <CuboidCollider args={size.map((s) => s / 2)} />
+      <CuboidCollider args={[hx / 2, hy / 2, hz / 2]} />
       <mesh castShadow receiveShadow>
         <boxGeometry args={size} />
         <meshStandardMaterial color="#e0a458" />
@@ -32,7 +39,12 @@ function Ramp({ position, rotation = [0, 0, 0], size = [6, 0.4, 10] }) {
   );
 }
 
-function Crate({ position, color = "#c97b4a" }) {
+type CrateProps = {
+  position: [number, number, number];
+  color?: string;
+};
+
+function Crate({ position, color = "#c97b4a" }: CrateProps) {
   return (
     <RigidBody position={position} colliders="cuboid" mass={4}>
       <mesh castShadow receiveShadow>
@@ -43,7 +55,7 @@ function Crate({ position, color = "#c97b4a" }) {
   );
 }
 
-function Tree({ position }) {
+function Tree({ position }: { position: [number, number, number] }) {
   return (
     <RigidBody type="fixed" position={position}>
       <CylinderCollider args={[1.5, 0.3]} position={[0, 1.5, 0]} />
@@ -60,7 +72,7 @@ function Tree({ position }) {
 }
 
 export default function World() {
-  const trees = [];
+  const trees: [number, number, number][] = [];
   for (let i = 0; i < 24; i++) {
     const a = (i / 24) * Math.PI * 2;
     const r = 55 + (i % 3) * 6;
