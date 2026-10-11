@@ -6,12 +6,27 @@ One drivable car, a ground with ramps, crates and trees, a chase camera, keyboar
 ## Run it
 
 ```bash
-npm install
-npm run dev        # open the URL it prints; on your phone use the Network URL (same Wi-Fi)
-npm run build      # production build in dist/
+pnpm install
+pnpm dev           # open the URL it prints; on your phone use the Network URL (same Wi-Fi)
+pnpm build         # production build in dist/
 ```
 
 Controls: **W/A/S/D or arrows** drive, **Space** brake, **R** reset car. On a phone: joystick (bottom-left) and Brake button.
+
+## Deploy (GitHub Pages)
+
+Every push to `main` type-checks, builds, and publishes the app via
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) to:
+
+**https://ih-zonaid.github.io/my-world/**
+
+One-time setup: in the repo go to **Settings → Pages** and set **Source** to
+**GitHub Actions**. After that, each push to `main` (or a manual run from the
+**Actions** tab) redeploys the site.
+
+The app is a project site, so the production build is served from the
+`/my-world/` sub-path — that is the `base` set in `vite.config.ts`. Rename the
+repo and you must update that value to match.
 
 ## Where to change things
 
