@@ -42,10 +42,11 @@ function Border() {
 
 type PlotAreaProps = {
   selected: number;
+  erasing: boolean;
   enabled: boolean;
 };
 
-export default function PlotArea({ selected, enabled }: PlotAreaProps) {
+export default function PlotArea({ selected, erasing, enabled }: PlotAreaProps) {
   const [blocks, setBlocks] = useState<Blocks>(() => loadBlocks());
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const instanceKeys = useRef<string[]>([]);
@@ -153,7 +154,7 @@ export default function PlotArea({ selected, enabled }: PlotAreaProps) {
       if (mesh && hitInstance && hitInstance.instanceId !== undefined && hitInstance.face) {
         const key = instanceKeys.current[hitInstance.instanceId];
         if (key === undefined) return;
-        if (e.button === 2) {
+        if (erasing || e.button === 2) {
           setBlocks((prev) => {
             const next = new Map(prev);
             next.delete(key);
@@ -168,7 +169,7 @@ export default function PlotArea({ selected, enabled }: PlotAreaProps) {
       }
 
       // Nothing but ground below the cursor: stack from y = 0.
-      if (e.button === 0 && raycaster.ray.intersectPlane(ground, hit)) {
+      if (!erasing && e.button === 0 && raycaster.ray.intersectPlane(ground, hit)) {
         addBlock(Math.floor(hit.x), 0, Math.floor(hit.z));
       }
     };
@@ -190,7 +191,7 @@ export default function PlotArea({ selected, enabled }: PlotAreaProps) {
       el.removeEventListener("pointerdown", onDown);
       el.removeEventListener("pointerup", onUp);
     };
-  }, [enabled, selected, camera, gl]);
+  }, [enabled, selected, erasing, camera, gl]);
 
   return (
     <>
