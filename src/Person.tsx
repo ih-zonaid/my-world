@@ -35,7 +35,8 @@ const KID_SCALE = 0.55; // ~2.7 unit model (with hat) -> ~1.5 m kid
 
 function KidModel() {
   const group = useRef<THREE.Group>(null);
-  const { scene, animations } = useGLTF("/models/kid.glb");
+  // BASE_URL keeps this working under the GitHub Pages "/my-world/" sub-path.
+  const { scene, animations } = useGLTF(`${import.meta.env.BASE_URL}models/kid.glb`);
   const { actions } = useAnimations(animations, group);
   const animationState = useEcctrlAnimationStore((s) => s.animationState);
 
