@@ -1,20 +1,13 @@
 // The plot: one 32x32 build area centred on the origin.
-// Blocks are stored sparsely as "x,y,z" -> palette index and persisted to
-// localStorage, so a server can replace the storage functions later without
-// touching the rendering.
+// Blocks are stored sparsely as "x,y,z" -> index into the catalog's block list
+// and persisted to localStorage, so a server can replace the storage functions
+// later without touching the rendering.
+
+import { BLOCKS } from "./items";
 
 export const PLOT_SIZE = 32;
 export const PLOT_HALF = PLOT_SIZE / 2; // cells from -16..+15
 export const MAX_HEIGHT = 24;
-
-export const PALETTE = [
-  { name: "Grass", color: "#6fbf73" },
-  { name: "Dirt", color: "#8b5e3c" },
-  { name: "Stone", color: "#9aa0a6" },
-  { name: "Wood", color: "#c99a5b" },
-  { name: "Red", color: "#d9382f" },
-  { name: "Blue", color: "#4a7fd4" },
-] as const;
 
 export type Blocks = Map<string, number>;
 
@@ -40,7 +33,7 @@ export function loadBlocks(): Blocks {
     const saved = JSON.parse(raw) as Record<string, number>;
     for (const [key, type] of Object.entries(saved)) {
       const [x, y, z] = parseBlockKey(key);
-      if (!Number.isInteger(type) || type < 0 || type >= PALETTE.length) continue;
+      if (!Number.isInteger(type) || type < 0 || type >= BLOCKS.length) continue;
       if (!insidePlot(x, z) || y < 0 || y >= MAX_HEIGHT) continue;
       blocks.set(key, type);
     }

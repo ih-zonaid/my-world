@@ -4,7 +4,6 @@ import { useRapier, type RapierCollider, type RapierRigidBody } from "@react-thr
 import * as THREE from "three";
 import {
   MAX_HEIGHT,
-  PALETTE,
   PLOT_HALF,
   PLOT_SIZE,
   blockKey,
@@ -14,6 +13,7 @@ import {
   saveBlocks,
   type Blocks,
 } from "./plot";
+import { BLOCKS } from "./items";
 
 // Fixed instance capacity for this single-plot iteration (one draw call).
 const MAX_BLOCKS = 8192;
@@ -44,10 +44,22 @@ type PlotAreaProps = {
   selected: number;
   erasing: boolean;
   enabled: boolean;
+  canPlace: (itemId: string) => boolean;
+  onPlaced: (itemId: string) => void;
+  onErased: (itemId: string) => void;
 };
 
-export default function PlotArea({ selected, erasing, enabled }: PlotAreaProps) {
+export default function PlotArea({
+  selected,
+  erasing,
+  enabled,
+  canPlace,
+  onPlaced,
+  onErased,
+}: PlotAreaProps) {
   const [blocks, setBlocks] = useState<Blocks>(() => loadBlocks());
+  const blocksRef = useRef(blocks);
+  blocksRef.current = blocks;
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const instanceKeys = useRef<string[]>([]);
   const colliders = useRef(new Map<string, RapierCollider>());
@@ -73,7 +85,7 @@ export default function PlotArea({ selected, erasing, enabled }: PlotAreaProps) 
       dummy.position.set(x + 0.5, y + 0.5, z + 0.5);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
-      mesh.setColorAt(i, color.set(PALETTE[type]?.color ?? PALETTE[0].color));
+      mesh.setColorAt(i, color.set(BLOCKS[type]?.swatch ?? "#ffffff"));
       keys.push(key);
       i++;
     }
@@ -155,6 +167,8 @@ export default function PlotArea({ selected, erasing, enabled }: PlotAreaProps) 
         const key = instanceKeys.current[hitInstance.instanceId];
         if (key === undefined) return;
         if (erasing || e.button === 2) {
+          const type = blocksRef.current.get(key);
+          if (type !== undefined && BLOCKS[type]) onErased(BLOCKS[type].id);
           setBlocks((prev) => {
             const next = new Map(prev);
             next.delete(key);
@@ -176,13 +190,16 @@ export default function PlotArea({ selected, erasing, enabled }: PlotAreaProps) 
 
     const addBlock = (x: number, y: number, z: number) => {
       if (!insidePlot(x, z) || y < 0 || y >= MAX_HEIGHT) return;
+      const id = BLOCKS[selected]?.id;
+      if (!id || !canPlace(id)) return;
+      const key = blockKey(x, y, z);
+      if (blocksRef.current.has(key)) return;
       setBlocks((prev) => {
-        const key = blockKey(x, y, z);
-        if (prev.has(key)) return prev;
         const next = new Map(prev);
         next.set(key, selected);
         return next;
       });
+      onPlaced(id);
     };
 
     el.addEventListener("pointerdown", onDown);
@@ -191,7 +208,7 @@ export default function PlotArea({ selected, erasing, enabled }: PlotAreaProps) 
       el.removeEventListener("pointerdown", onDown);
       el.removeEventListener("pointerup", onUp);
     };
-  }, [enabled, selected, erasing, camera, gl]);
+  }, [enabled, selected, erasing, camera, gl, canPlace, onPlaced, onErased]);
 
   return (
     <>
