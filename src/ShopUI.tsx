@@ -9,7 +9,7 @@ type ShopUIProps = {
   onBuy: (shopId: string, itemId: string) => void;
   onClose: () => void;
   onSelectBlock: (index: number) => void;
-  onSpawnProp: (itemId: string) => void;
+  onStartPlacing: (itemId: string) => void;
   onToggleShowcase: (itemId: string) => void;
 };
 
@@ -20,7 +20,7 @@ export default function ShopUI({
   onBuy,
   onClose,
   onSelectBlock,
-  onSpawnProp,
+  onStartPlacing,
   onToggleShowcase,
 }: ShopUIProps) {
   const [tab, setTab] = useState<"items" | "showcase">("items");
@@ -70,7 +70,7 @@ export default function ShopUI({
                       : "Put on showcase"
                     : def.kind === "block"
                       ? "Select block"
-                      : "Place in world";
+                      : "Place in the world";
                 return (
                   <button
                     key={id}
@@ -82,7 +82,7 @@ export default function ShopUI({
                         ? onToggleShowcase(id)
                         : def.kind === "block"
                           ? onSelectBlock(BLOCKS.findIndex((b) => b.id === id))
-                          : onSpawnProp(id)
+                          : onStartPlacing(id)
                     }
                   >
                     <span className="swatch" style={{ background: def.swatch }} />

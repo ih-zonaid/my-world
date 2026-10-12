@@ -7,6 +7,7 @@ import Car from "./Car";
 import Person from "./Person";
 import PlotArea from "./PlotArea";
 import Store, { type PlacingKind } from "./Store";
+import PropPlacer from "./PropPlacer";
 import ShopUI from "./ShopUI";
 import Intro from "./Intro";
 import { BLOCKS, itemById } from "./items";
@@ -46,6 +47,7 @@ export default function App() {
   const [selected, setSelected] = useState(0);
   const [erasing, setErasing] = useState(false);
   const [placing, setPlacing] = useState<PlacingKind>(null);
+  const [placingProp, setPlacingProp] = useState<string | null>(null);
   const [shops, setShops] = useState<Shop[]>(saved.shops);
   const [openShopId, setOpenShopId] = useState<string | null>(null);
   const [wallet, setWallet] = useState(saved.wallet);
@@ -66,6 +68,7 @@ export default function App() {
       if (e.code === "KeyE") setErasing((v) => !v);
       if (e.code === "KeyB") {
         setPlacing((p) => (p === "me" ? null : "me"));
+        setPlacingProp(null);
         setErasing(false);
       }
       const slot = Number(e.key);
@@ -78,10 +81,11 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [phase]);
 
-  // Driving cancels shop placement and closes the sidebar.
+  // Driving cancels placement and closes the sidebar.
   useEffect(() => {
     if (mode !== "walk") {
       setPlacing(null);
+      setPlacingProp(null);
       setOpenShopId(null);
     }
   }, [mode]);
@@ -122,19 +126,20 @@ export default function App() {
     setInventory((inv) => addItem(inv, itemId, 1));
   };
 
-  const spawnProp = (shopId: string, itemId: string) => {
-    const shop = shops.find((s) => s.id === shopId);
-    if (!shop || countOf(inventory, itemId) <= 0) return;
-    setInventory((inv) => addItem(inv, itemId, -1));
-    setItems((list) => {
-      const i = list.length;
-      const pos: [number, number, number] = [
-        shop.pos[0] + ((i % 4) - 1.5) * 1.2,
-        0,
-        shop.pos[2] + 3.9 + Math.floor(i / 4) * 1.2,
-      ];
-      return [...list, { id: nextId.current++, type: itemId, pos }];
-    });
+  // Arm placement for a prop, then the next world click drops it there.
+  const startProp = (itemId: string) => {
+    if (countOf(inventory, itemId) <= 0) return;
+    setPlacingProp(itemId);
+    setPlacing(null);
+    setErasing(false);
+  };
+
+  const placeProp = (pos: [number, number, number]) => {
+    if (!placingProp || countOf(inventory, placingProp) <= 0) return;
+    const remaining = countOf(inventory, placingProp) - 1;
+    setInventory((inv) => addItem(inv, placingProp, -1));
+    setItems((list) => [...list, { id: nextId.current++, type: placingProp, pos }]);
+    if (remaining <= 0) setPlacingProp(null);
   };
 
   const toggleShowcase = (shopId: string, itemId: string) => {
@@ -154,6 +159,7 @@ export default function App() {
     if (index < 0) return;
     setSelected(index);
     setErasing(false);
+    setPlacingProp(null);
   };
 
   // Phones/tablets get a lower pixel ratio to stay smooth.
@@ -189,10 +195,15 @@ export default function App() {
             <PlotArea
               selected={selected}
               erasing={erasing}
-              enabled={playing && mode === "walk" && !placing}
+              enabled={playing && mode === "walk" && !placing && !placingProp}
               canPlace={canPlace}
               onPlaced={onPlaced}
               onErased={onErased}
+            />
+            <PropPlacer
+              itemId={placingProp}
+              onPlace={placeProp}
+              onCancel={() => setPlacingProp(null)}
             />
             <Store
               shops={shops}
@@ -220,9 +231,11 @@ export default function App() {
           <div id="hint">
             {mode === "car"
               ? "W/A/S/D drive · Space = brake · F = get out · R = reset car · touch: joystick"
-              : placing
-                ? "Click inside your plot to place your shop · B = cancel"
-                : "W/A/S/D walk · Space = jump · Shift = run · click = place · E = erase · 1-6 = block · B = your shop · F = drive"}
+              : placingProp
+                ? `Click in your plot to place ${itemById(placingProp)?.name ?? "item"} · right-click/Esc = cancel`
+                : placing
+                  ? "Click inside your plot to place your shop · B = cancel"
+                  : "W/A/S/D walk · Space = jump · Shift = run · click = place · E = erase · 1-6 = block · B = your shop · F = drive"}
           </div>
 
           {/* Touch controls (shown on every device; handy on phones) */}
@@ -263,7 +276,10 @@ export default function App() {
               <button
                 type="button"
                 className={erasing ? "active" : ""}
-                onClick={() => setErasing(true)}
+                onClick={() => {
+                  setErasing(true);
+                  setPlacingProp(null);
+                }}
                 title="Erase"
               >
                 <span className="dot erase" />
@@ -292,7 +308,7 @@ export default function App() {
               onBuy={buy}
               onClose={() => setOpenShopId(null)}
               onSelectBlock={selectBlock}
-              onSpawnProp={(id) => spawnProp(openShop.id, id)}
+              onStartPlacing={startProp}
               onToggleShowcase={(id) => toggleShowcase(openShop.id, id)}
             />
           )}
