@@ -8,18 +8,12 @@ import {
 } from "ecctrl/vehicle";
 import { useJoystickStore, useButtonStore } from "ecctrl/input";
 import * as THREE from "three";
+import { game, keys } from "./state";
 
 const START: [number, number, number] = [0, 2, 10];
 // Mass matters: the default ecctrl suspension (springK=180) is tuned for a light body.
 // If you make the car heavier, raise springK/dampingC on <ShapeCastWheel> too.
 const CAR_MASS = 20;
-
-// Keyboard state (kept outside React so it never causes re-renders)
-const keys: Record<string, boolean> = {};
-if (typeof window !== "undefined") {
-  window.addEventListener("keydown", (e) => (keys[e.code] = true));
-  window.addEventListener("keyup", (e) => (keys[e.code] = false));
-}
 
 // ----------------------------------------------------------------------------
 // YOUR CAR LIVES HERE.
@@ -44,7 +38,7 @@ function Wheel({ position, steer, drive }: WheelProps) {
   );
 }
 
-export default function Car() {
+export default function Car({ active }: { active: boolean }) {
   const vehicle = useRef<EcctrlVehicleHandle>(null);
   const camPos = useRef(new THREE.Vector3(0, 6, 22));
   const camLook = useRef(new THREE.Vector3(...START));
@@ -58,9 +52,20 @@ export default function Car() {
     if (typeof window !== "undefined" && import.meta.env.DEV) window.__car = vehicle; // dev-only debug handle
   }, []);
 
+  // Release inputs the moment we hand control over (e.g. to the walking kid).
+  useEffect(() => {
+    if (active) return;
+    const v = vehicle.current;
+    if (!v) return;
+    v.setMovement({ forward: false, backward: false, steerLeft: false, steerRight: false, brake: false });
+  }, [active]);
+
   useFrame((state, delta) => {
     const v = vehicle.current;
     if (!v) return;
+
+    game.carPos.copy(v.currPos);
+    if (!active) return;
 
     // ---- read input: keyboard + on-screen joystick ----
     const joy = useJoystickStore.getState().joysticks?.default ?? { x: 0, y: 0, active: false };

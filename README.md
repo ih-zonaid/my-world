@@ -1,7 +1,7 @@
 # My World
 
-A small browser 3D driving world: **Vite + React Three Fiber + Rapier + [ecctrl](https://github.com/pmndrs/ecctrl)** (MIT).
-One drivable car, a ground with ramps, crates and trees, a chase camera, keyboard + on-screen touch joystick.
+A small browser 3D world: **Vite + React Three Fiber + Rapier + [ecctrl](https://github.com/pmndrs/ecctrl)** (MIT).
+Drive a car (a ground with ramps, crates and trees) or step out and walk around as an adventurer kid — chase camera in the car, orbit camera on foot, keyboard + on-screen touch joystick.
 
 ## Run it
 
@@ -11,7 +11,7 @@ pnpm dev           # open the URL it prints; on your phone use the Network URL (
 pnpm build         # production build in dist/
 ```
 
-Controls: **W/A/S/D or arrows** drive, **Space** brake, **R** reset car. On a phone: joystick (bottom-left) and Brake button.
+Controls: **W/A/S/D or arrows** drive/walk, **Space** brake (car) or jump (kid), **Shift** run, **F** switch between car and kid, **R** reset car. On a phone: joystick (bottom-left) plus Brake/Jump button.
 
 ## Deploy (GitHub Pages)
 
@@ -34,8 +34,12 @@ repo and you must update that value to match.
 |---|---|
 | `src/World.tsx` | The map: ground, ramps, crates, trees, lights. Edit freely. |
 | `src/Car.tsx` | Your car: input, chase camera, wheels. Swap the box for a GLB here. |
-| `src/App.tsx` | Canvas, physics, touch controls. |
+| `src/Person.tsx` | The walking kid: ecctrl character, camera, animations. |
+| `src/state.ts` | Shared keyboard state + last car/kid positions (frame-level, no re-renders). |
+| `src/App.tsx` | Canvas, physics, touch controls, **F** car↔kid toggle. |
 | `public/models/` | Put free `.glb` models here (Kenney, Quaternius, Poly Pizza). |
+
+The kid model is the **Mage** from [KayKit Character Pack: Adventurers](https://kaylousberg.itch.io/kaykit-adventurers) (CC0), trimmed to 7 movement clips with `gltf-transform` to keep the file small.
 
 ### Use a GLB model
 
