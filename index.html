@@ -10,8 +10,12 @@
     <style>
       html, body, #root { margin: 0; height: 100%; overflow: hidden; background: #9ad1f5; }
       body { touch-action: none; overscroll-behavior: none; -webkit-user-select: none; user-select: none; font-family: system-ui, sans-serif; }
-      #hint { position: fixed; top: 12px; left: 12px; color: #fff; font-size: 13px; text-shadow: 0 1px 3px #0008; pointer-events: none; }
-      #hotbar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 8px; }
+      #hint { position: fixed; top: 12px; left: 12px; z-index: 6; color: #fff; font-size: 13px; text-shadow: 0 1px 3px #0008; pointer-events: none; }
+      #hotbar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 6; display: flex; gap: 8px; }
+      /* Cloud/white wash: fades in fast during the dive, fades out slowly on landing. */
+      #wash { position: fixed; inset: 0; z-index: 5; background: #eaf4ff; opacity: 0; pointer-events: none; transition: opacity 1.6s ease; }
+      #wash.descend { opacity: 1; transition: opacity 0.8s ease-in; }
+      #enter { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; color: #fff; font-size: 15px; padding: 9px 16px; border-radius: 22px; background: #00000055; text-shadow: 0 1px 4px #000a; pointer-events: none; }
       #hotbar button { position: relative; width: 46px; height: 46px; padding: 0; border: 2px solid #ffffff44; border-radius: 9px; background: #00000055; display: grid; place-items: center; cursor: pointer; }
       #hotbar button.active { border-color: #fff; background: #ffffff33; }
       #hotbar .dot { width: 24px; height: 24px; border-radius: 5px; }

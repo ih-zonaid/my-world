@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__integrated-browser-mcp__browser_screenshot"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}
