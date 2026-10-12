@@ -11,11 +11,15 @@
       html, body, #root { margin: 0; height: 100%; overflow: hidden; background: #9ad1f5; }
       body { touch-action: none; overscroll-behavior: none; -webkit-user-select: none; user-select: none; font-family: system-ui, sans-serif; }
       #hint { position: fixed; top: 12px; left: 12px; color: #fff; font-size: 13px; text-shadow: 0 1px 3px #0008; pointer-events: none; }
+      #hotbar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 8px; }
+      #hotbar button { position: relative; width: 46px; height: 46px; padding: 0; border: 2px solid #ffffff44; border-radius: 9px; background: #00000055; display: grid; place-items: center; cursor: pointer; }
+      #hotbar button.active { border-color: #fff; background: #ffffff33; }
+      #hotbar .dot { width: 24px; height: 24px; border-radius: 5px; }
+      #hotbar .num { position: absolute; right: 4px; bottom: 1px; font-size: 10px; color: #fff9; }
     </style>
   </head>
   <body>
     <div id="root"></div>
-    <div id="hint">W/A/S/D or arrows to drive · Space = brake / jump · F = car ↔ kid · R = reset car · touch: joystick</div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 # My World
 
 A small browser 3D world: **Vite + React Three Fiber + Rapier + [ecctrl](https://github.com/pmndrs/ecctrl)** (MIT).
-Drive a car (a ground with ramps, crates and trees) or step out and walk around as an adventurer kid — chase camera in the car, orbit camera on foot, keyboard + on-screen touch joystick.
+Drive a car across a ground of ramps, crates and trees, step out and walk around as an adventurer kid, and build on your own 32x32 plot of click-to-place blocks. Chase camera in the car, orbit camera on foot, keyboard + on-screen touch joystick.
 
 ## Run it
 
@@ -35,6 +35,8 @@ repo and you must update that value to match.
 | `src/World.tsx` | The map: ground, ramps, crates, trees, lights. Edit freely. |
 | `src/Car.tsx` | Your car: input, chase camera, wheels. Swap the box for a GLB here. |
 | `src/Person.tsx` | The walking kid: ecctrl character, camera, animations. |
+| `src/PlotArea.tsx` | The build plot: border, instanced blocks, click-to-place, physics. |
+| `src/plot.ts` | Plot size, block palette, localStorage save/load. |
 | `src/state.ts` | Shared keyboard state + last car/kid positions (frame-level, no re-renders). |
 | `src/App.tsx` | Canvas, physics, touch controls, **F** car↔kid toggle. |
 | `public/models/` | Put free `.glb` models here (Kenney, Quaternius, Poly Pizza). |
